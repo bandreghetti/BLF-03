@@ -1,12 +1,15 @@
 #include <Arduino.h>
 #include "Motor.h"
 
-Motor::Motor(char pins[]) {
+Motor::Motor(char pins[], char endstop) {
     int i;
     for (i = 0; i < 4; ++i){
         this->pins[i] = pins[i];
         pinMode(this->pins[i], OUTPUT);
     }
+
+    this->endstop = endstop;
+    pinMode(endstop, INPUT);
 
     // Initialize motor in state 0
     this->state = 0;
@@ -18,6 +21,53 @@ Motor::Motor(char pins[]) {
     this->lastStepTime = micros();
 }
 
+bool Motor::zero() {
+    int steps;
+
+    // Approach endstop quickly
+    this->setFrequency(MAX_FREQ);
+    this->setDirection(CCW);
+    for (steps = 0; steps < STEPS_PER_REV; ++steps) {
+        if (digitalRead(this->endstop)) {
+            // if motor has hit the endstop, break out of the loop
+            break;
+        }
+        this->blockingStep();
+    }
+    if (steps == STEPS_PER_REV) {
+        // if motor hasn't hit the endstop, return false indicating failure
+        return false;
+    }
+
+    // Back off a little
+    this->setDirection(CW);
+    for (steps = 0; steps < STEPS_PER_REV/36; ++steps) {
+        this->blockingStep();
+    }
+    if (digitalRead(this->endstop)) {
+        // if endstop is still pressed after backing off
+        return false;
+    }
+
+    // Approach endstop gently
+    this->setFrequency(MAX_FREQ/4);
+    this->setDirection(CCW);
+    for (steps = 0; steps < STEPS_PER_REV/18; ++steps) {
+        if (digitalRead(this->endstop)) {
+            // if motor has hit the endstop, break out of the loop
+            break;
+        }
+        this->blockingStep();
+    }
+    if (steps == STEPS_PER_REV/18) {
+        // if motor hasn't hit the endstop, return false indicating failure
+        return false;
+    }
+
+    this->pos = 0;
+    return true;
+}
+
 void Motor::step(bool dir) {
   if(dir == CCW){
     if (this->state == 0) {
@@ -25,12 +75,14 @@ void Motor::step(bool dir) {
     } else {
         this->state = this->state - 1;
     }
+    this->pos += 1;
   } else if(dir == CW) {
     if (this->state == 3) {
         this->state = 0;
     } else {
         this->state = this->state + 1;
     }
+    this->pos -= 1;
   }
   switch(this->state) {
     case 0:
@@ -59,6 +111,10 @@ void Motor::step(bool dir) {
       break;
   }
   this->lastStepTime = micros();
+}
+
+void Motor::blockingStep() {
+    while(!this->checkAndStep());
 }
 
 bool Motor::checkAndStep() {

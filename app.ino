@@ -1,54 +1,79 @@
 #include <Arduino_FreeRTOS.h>
-#include "src/Motor.h"
+#include <Arduino.h>
+#include "src/Robot.h"
 #include "config.h"
 
-// define two tasks for Blink & AnalogRead
-void TaskStep( void *pvParameters );
+Robot *robot;
 
-// the setup function runs once when you press reset or power the board
+void TaskStep(void *pvParameters);
+void TaskJoystick(void *pvParameters);
+
 void setup() {
-  Serial.begin(115200);
 
-  // Now set up two tasks to run independently.
+  char mot0Pins[] = MOT0PINS;
+  char mot1Pins[] = MOT1PINS;
+  char jsPorts[] = {JOYX, JOYY};
+
+  robot = new Robot(
+    mot0Pins,
+    MOT0ENDSTOP,
+    mot1Pins,
+    MOT1ENDSTOP,
+    jsPorts,
+    ENABLEPORT
+  );
+
+  // Create motors task
   xTaskCreate(
     TaskMotors
-    ,  (const portCHAR *)"Step"   // A name just for humans
+    ,  (const portCHAR *)"Motors"   // A name just for humans
     ,  256  // This stack size can be checked & adjusted by reading the Stack Highwater
     ,  NULL
     ,  0  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
     ,  NULL );
 
-  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
+  // Create joystick task
+  xTaskCreate(
+    TaskJoystick
+    ,  (const portCHAR *)"Joystick"   // A name just for humans
+    ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  NULL
+    ,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  NULL );
 }
 
-void loop()
-{
-  // Empty. Things are done in Tasks.
-}
+void loop(){}
 
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
 
-void TaskMotors(void *pvParameters)  // This is a task.
-{
+void TaskMotors(void *pvParameters) {
   (void) pvParameters;
-
-  // initialize digital LED_BUILTIN on pin 13 as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  char mot0pins[] = MOT0PINS;
-  Motor mot0 = Motor(mot0pins);
-
-  mot0.setFrequency(200);
 
   while(1) {
     for (int i = 0; i < 2048; ++i)
     {
-      while(!mot0.checkAndStep());
+      while(!robot->motor0->checkAndStep()){
+        short newSpeed = robot->js->getX();
+        if (newSpeed > 0) {
+          robot->motor0->setDirection(CCW);
+        } else {
+          robot->motor0->setDirection(CW);
+        }
+
+        unsigned short newFreq = map(abs(newSpeed), 0, 512, 0, 200);
+
+        robot->motor0->setFrequency(newFreq);
+      };
     }
-    digitalWrite(LED_BUILTIN, HIGH);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    digitalWrite(LED_BUILTIN, LOW);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+  }
+}
+
+void TaskJoystick(void *pvParameters) {
+  while(1) {
+    robot->js->update();
+    vTaskDelay(60 / portTICK_PERIOD_MS);
   }
 }

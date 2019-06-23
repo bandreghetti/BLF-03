@@ -7,6 +7,8 @@ Joystick::Joystick(char xPort, char yPort, char ePort) {
     pinMode(xPort, INPUT);
     pinMode(yPort, INPUT);
     pinMode(ePort, INPUT);
+    this->centerX = analogRead(xPort);
+    this->centerY = analogRead(yPort);
 }
 
 void Joystick::update() {
@@ -14,32 +16,42 @@ void Joystick::update() {
 
     // Update X reading
     newX = analogRead(this->xPort);
-    if(newX < CENTER + DEADZONE
-    && newX > CENTER - DEADZONE) {
+    if(newX < this->centerX + DEADZONE
+    && newX > this->centerX - DEADZONE) {
         this->x = 0;
     } else {
-        if(newX > CENTER) {
-            this->x = map(newX, CENTER+DEADZONE, 1023, 0, CENTER);
+        if(newX > this->centerX) {
+            this->x = map(newX, this->centerX+DEADZONE, 1023, 0, 512);
         } else {
-            this->x = map(newX, CENTER-DEADZONE, 0, 0, -CENTER);
+            this->x = map(newX, this->centerX-DEADZONE, 0, 0, -512);
         }
     }
+    this->rawX = newX;
 
     // Update Y reading
     newY = analogRead(this->yPort);
-    if(newY < CENTER + DEADZONE
-    && newY > CENTER - DEADZONE) {
+    if(newY < this->centerY + DEADZONE
+    && newY > this->centerY - DEADZONE) {
         this->y = 0;
     } else {
-        if(newY > CENTER) {
-            this->y = map(newY, CENTER+DEADZONE, 1023, 0, -CENTER);
+        if(newY > this->centerY) {
+            this->y = map(newY, this->centerY+DEADZONE, 1023, 0, -512);
         } else {
-            this->y = map(newY, CENTER-DEADZONE, 0, 0, +CENTER);
+            this->y = map(newY, this->centerY-DEADZONE, 0, 0, 512);
         }
     }
+    this->rawY = newY;
 
     // Update enable port
     this->e = digitalRead(this->ePort);
+}
+
+short Joystick::getRawX() {
+    return this->rawX;
+}
+
+short Joystick::getRawY() {
+    return this->rawY;
 }
 
 short Joystick::getX() {

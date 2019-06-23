@@ -10,6 +10,8 @@ void TaskJoystick(void *pvParameters);
 
 void setup() {
 
+  Serial.begin(115200);
+
   char mot0Pins[] = MOT0PINS;
   char mot1Pins[] = MOT1PINS;
   char jsPorts[] = {JOYX, JOYY};
@@ -22,6 +24,16 @@ void setup() {
     jsPorts,
     ENABLEPORT
   );
+
+  if (!robot->home()) {
+    pinMode(LED_BUILTIN, OUTPUT);
+    while(true) {
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(200);
+      digitalWrite(LED_BUILTIN, LOW);
+      delay(200);
+    }
+  }
 
   // Create motors task
   xTaskCreate(
@@ -51,24 +63,7 @@ void loop(){}
 void TaskMotors(void *pvParameters) {
   (void) pvParameters;
 
-  while(1) {
-    for (int i = 0; i < 2048; ++i)
-    {
-      while(!robot->motor0->checkAndStep()){
-        short newSpeed = robot->js->getX();
-        if (newSpeed < 0) {
-          robot->motor0->setDirection(CCW);
-        } else {
-          robot->motor0->setDirection(CW);
-        }
-
-        unsigned short newFreq = map(abs(newSpeed), 0, 512, 0, 200);
-
-        robot->motor0->setFrequency(newFreq);
-      };
-    }
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-  }
+  robot->behavior0();
 }
 
 void TaskJoystick(void *pvParameters) {

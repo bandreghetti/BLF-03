@@ -4,7 +4,7 @@
 #define CW 1
 
 #define STEPS_PER_REV 2048
-#define MAX_FREQ 200
+#define MAX_FREQ 150
 
 class Motor {
     private:
@@ -35,4 +35,6 @@ class Motor {
 
         void setPos(short);
         short getPos();
+
+        bool endstopHit();
 };

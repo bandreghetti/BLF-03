@@ -13,6 +13,16 @@ Robot::Robot(
     this->js = new Joystick(joyPorts[0], joyPorts[1], enablePort);
 }
 
+bool Robot::home() {
+    if(!this->motor0->zero()) {
+        return false;
+    }
+    if(!this->motor1->zero()) {
+        return false;
+    }
+    return true;
+}
+
 void Robot::update() {
     // Wait until next step
     while(!(this->motor0->checkAndStep() || this->motor1->checkAndStep()));
@@ -72,4 +82,28 @@ void Robot::update() {
     } else {
         this->motor0->setDirection(CW);
     }
+}
+
+void Robot::behavior0() {
+    while(1) {
+        this->motor0->checkAndStep();
+        this->motor1->checkAndStep();
+        short newSpeed0 = this->js->getX();
+        if (newSpeed0 < 0) {
+          this->motor0->setDirection(CCW);
+        } else {
+          this->motor0->setDirection(CW);
+        }
+        unsigned short newFreq0 = map(abs(newSpeed0), 0, 512, 0, 150);
+        this->motor0->setFrequency(newFreq0);
+
+        short newSpeed1 = this->js->getY();
+        if (newSpeed1 > 0) {
+          this->motor1->setDirection(CCW);
+        } else {
+          this->motor1->setDirection(CW);
+        }
+        unsigned short newFreq1 = map(abs(newSpeed1), 0, 512, 0, 150);
+        this->motor1->setFrequency(newFreq1);
+  }
 }

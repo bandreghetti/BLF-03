@@ -20,14 +20,22 @@ Motor::Motor(char pins[], char endstop) {
     this->lastStepTime = micros();
 }
 
+bool Motor::endstopHit() {
+    if (digitalRead(this->endstop)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
 bool Motor::zero() {
     int steps;
 
     // Approach endstop quickly
-    this->setFrequency(MAX_FREQ);
+    this->setFrequency(MAX_FREQ/2);
     this->setDirection(CCW);
     for (steps = 0; steps < STEPS_PER_REV; ++steps) {
-        if (digitalRead(this->endstop)) {
+        if (this->endstopHit()) {
             // if motor has hit the endstop, break out of the loop
             break;
         }
@@ -43,7 +51,7 @@ bool Motor::zero() {
     for (steps = 0; steps < STEPS_PER_REV/36; ++steps) {
         this->blockingStep();
     }
-    if (digitalRead(this->endstop)) {
+    if (this->endstopHit()) {
         // if endstop is still pressed after backing off
         return false;
     }
@@ -52,7 +60,7 @@ bool Motor::zero() {
     this->setFrequency(MAX_FREQ/4);
     this->setDirection(CCW);
     for (steps = 0; steps < STEPS_PER_REV/18; ++steps) {
-        if (digitalRead(this->endstop)) {
+        if (this->endstopHit()) {
             // if motor has hit the endstop, break out of the loop
             break;
         }

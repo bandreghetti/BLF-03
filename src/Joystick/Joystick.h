@@ -1,7 +1,6 @@
 #include <Arduino.h>
 
-#define DEADZONE 20
-#define CENTER 512
+#define DEADZONE 40
 
 class Joystick {
     private:
@@ -9,11 +8,17 @@ class Joystick {
         char yPort;
         char ePort;
 
-        long x, y;
+        short centerX, centerY;
+
+        short rawX, rawY;
+
+        short x, y;
         bool e;
     public:
         Joystick(char, char, char);
         void update();
+        short getRawX();
+        short getRawY();
         short getX();
         short getY();
         bool enabled();

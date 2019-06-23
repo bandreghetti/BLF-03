@@ -5,7 +5,7 @@
 #define LINK0 80
 #define LINK1 80
 
-#define JOY2SPD 45.0/CENTER
+#define JOY2SPD 45.0/512.0
 
 class Robot {
     private:
@@ -20,5 +20,6 @@ class Robot {
         Joystick *js;
 
         bool home();
+        void behavior0();
         void update();
 };

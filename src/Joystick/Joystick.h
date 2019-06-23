@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #define DEADZONE 20
 #define CENTER 512
 

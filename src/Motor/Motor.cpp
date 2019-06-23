@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "Motor.h"
 
 Motor::Motor(char pins[], char endstop) {
@@ -9,7 +8,7 @@ Motor::Motor(char pins[], char endstop) {
     }
 
     this->endstop = endstop;
-    pinMode(endstop, INPUT);
+    pinMode(endstop, INPUT_PULLUP);
 
     // Initialize motor in state 0
     this->state = 0;
@@ -64,7 +63,6 @@ bool Motor::zero() {
         return false;
     }
 
-    this->pos = 0;
     return true;
 }
 
@@ -154,4 +152,13 @@ void Motor::setFrequency(unsigned short frequency) {
 void Motor::setDirection(bool dir) {
     this->dir = dir;
     return;
+}
+
+void Motor::setPos(short pos) {
+    this->pos = pos;
+    return;
+}
+
+short Motor::getPos() {
+    return this->pos;
 }

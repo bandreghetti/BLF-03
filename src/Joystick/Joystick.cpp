@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "Joystick.h"
 
 Joystick::Joystick(char xPort, char yPort, char ePort) {

@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #define CCW 0
 #define CW 1
 
@@ -24,10 +26,13 @@ class Motor {
 
         bool zero();
 
-        void step(bool dir);
+        void step(bool);
         bool checkAndStep();
         void blockingStep();
 
         void setFrequency(unsigned short);
-        void setDirection(bool dir);
+        void setDirection(bool);
+
+        void setPos(short);
+        short getPos();
 };

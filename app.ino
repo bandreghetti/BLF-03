@@ -56,7 +56,7 @@ void TaskMotors(void *pvParameters) {
     {
       while(!robot->motor0->checkAndStep()){
         short newSpeed = robot->js->getX();
-        if (newSpeed > 0) {
+        if (newSpeed < 0) {
           robot->motor0->setDirection(CCW);
         } else {
           robot->motor0->setDirection(CW);

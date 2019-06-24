@@ -5,7 +5,7 @@
 #define LINK0 80
 #define LINK1 80
 
-#define JOY2SPD 45.0/512.0
+#define JOY2SPD 10.0/512.0
 
 class Robot {
     private:
@@ -19,7 +19,7 @@ class Robot {
         Motor *motor1;
         Joystick *js;
 
-        bool home();
+        void home();
         void behavior0();
         void update();
 };

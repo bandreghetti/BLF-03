@@ -4,7 +4,7 @@
 #define CW 1
 
 #define STEPS_PER_REV 2048
-#define MAX_FREQ 150
+#define MAX_FREQ 100
 
 class Motor {
     private:
@@ -19,6 +19,7 @@ class Motor {
 
         // Dynamically configurable variables
         unsigned long period;
+        unsigned short frequency;
         bool dir;
         bool stopped;
     public:
@@ -27,11 +28,15 @@ class Motor {
         bool zero();
 
         void step(bool);
+        void goTo(short, unsigned short);
         bool checkAndStep();
         void blockingStep();
 
         void setFrequency(unsigned short);
+        unsigned short getFrequency();
+
         void setDirection(bool);
+        bool getDirection();
 
         void setPos(short);
         short getPos();

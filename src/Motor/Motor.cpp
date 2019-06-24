@@ -123,6 +123,21 @@ void Motor::blockingStep() {
     while(!this->checkAndStep());
 }
 
+void Motor::goTo(short newPos, unsigned short freq) {
+    this->setFrequency(freq);
+    if (newPos > this->pos) {
+        this->setDirection(CCW);
+    } else {
+        this->setDirection(CW);
+    }
+
+    short stepsToTake = abs(newPos - this->pos);
+    Serial.println(stepsToTake);
+    for(int i = 0; i < stepsToTake; ++i){
+        this->blockingStep();
+    }
+}
+
 bool Motor::checkAndStep() {
     // If motor is stopped, just return false and don't step
     if (this->stopped) {
@@ -148,8 +163,10 @@ void Motor::setFrequency(unsigned short frequency) {
 
     // Make sure frequency does not exceed a maximum of 200Hz
     if (frequency > MAX_FREQ) {
-        frequency = 200;
+        frequency = MAX_FREQ;
     }
+
+    this->frequency = frequency;
 
     // Period in microsseconds
     this->period = 1000000/frequency;
@@ -157,9 +174,20 @@ void Motor::setFrequency(unsigned short frequency) {
     return;
 }
 
+unsigned short Motor::getFrequency() {
+    if (this->stopped){
+        return 0;
+    }
+    return this->frequency;
+}
+
 void Motor::setDirection(bool dir) {
     this->dir = dir;
     return;
+}
+
+bool Motor::getDirection() {
+    return this->dir;
 }
 
 void Motor::setPos(short pos) {

@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#define DEADZONE 40
+#define DEADZONE 64
 
 class Joystick {
     private:

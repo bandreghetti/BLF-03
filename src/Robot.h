@@ -25,7 +25,7 @@ class Robot {
 
         void joy2Target();
         void setMotors2Target();
-        void moveMotors();
+        bool move2Dest();
 
         float getXTarget();
         float getYTarget();

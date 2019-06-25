@@ -32,7 +32,7 @@ class Motor {
         void goTo(short, unsigned short);
 
         bool checkAndStep();
-        void move2Dest();
+        bool move2Dest();
         void blockingStep();
 
         void setFrequency(unsigned short);

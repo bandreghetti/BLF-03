@@ -158,11 +158,17 @@ bool Motor::checkAndStep() {
     return false;
 }
 
-void Motor::move2Dest() {
+bool Motor::move2Dest() {
     if (this->pos != this->destPos) {
         this->checkAndStep();
     }
-    return;
+
+    // Check if motor finished movement
+    if (this->pos != this->destPos) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 void Motor::setFrequency(unsigned short frequency) {

@@ -4,7 +4,7 @@
 #include "src/Robot.h"
 #include "config.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 Robot *robot;
 
@@ -89,8 +89,13 @@ void loop(){}
 
 void TaskMoveMotors(void *pvParameters) {
   (void) pvParameters;
+  pinMode(LED_BUILTIN, OUTPUT);
   while(true) {
-    robot->moveMotors();
+    if (robot->move2Dest()) {
+      digitalWrite(LED_BUILTIN, HIGH);
+    } else {
+      digitalWrite(LED_BUILTIN, LOW);
+    };
   }
 }
 
@@ -100,6 +105,7 @@ void TaskSetMotors(void *pvParameters) {
   while(true) {
     xSemaphoreTake(jsMutex, portMAX_DELAY);
     robot->setMotors2Target();
+    vTaskDelay(100/portTICK_PERIOD_MS);
   }
 }
 
@@ -109,7 +115,7 @@ void TaskJoystick(void *pvParameters) {
   while(true) {
     robot->joy2Target();
     xSemaphoreGive(jsMutex);
-    vTaskDelay((500) / portTICK_PERIOD_MS);
+    vTaskDelay((200) / portTICK_PERIOD_MS);
   }
 }
 
@@ -142,6 +148,17 @@ void TaskDebug(void *pvParametes) {
     Serial.print(robot->getYPos());
     Serial.print(" YT:");
     Serial.println(robot->getYTarget());
+
+    Serial.print("F0:");
+    if (robot->motor0->getDirection() == CW) {
+      Serial.print('-');
+    }
+    Serial.print(robot->motor0->getFrequency());
+    Serial.print(" F1:");
+    if (robot->motor1->getDirection() == CW) {
+      Serial.print('-');
+    }
+    Serial.println(robot->motor1->getFrequency());
 
     Serial.println();
 

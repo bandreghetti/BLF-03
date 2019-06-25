@@ -123,7 +123,6 @@ void Robot::setMotors2Target() {
                            /(float)(2*LINK0*LINK1)
                            );
     const short destPos1 = (short)(theta1 * STEPS_PER_REV / (2*PI));
-    this->motor1->setDestPos(destPos1);
 
     // Calculate Theta0
     const float sinTheta1 = sin(theta1);
@@ -132,7 +131,6 @@ void Robot::setMotors2Target() {
     const float d = this->xTarget*(LINK0+LINK1*cosTheta1) + this->yTarget*LINK1*sinTheta1;
     const float theta0 = atan2(n, d);
     const short destPos0 = (short)(theta0 * STEPS_PER_REV / (2*PI));;
-    this->motor0->setDestPos(destPos0);
 
     // Calculate how many steps each motor needs to turn
     const short delta0 = destPos0 - this->motor0->getPos();
@@ -146,11 +144,12 @@ void Robot::setMotors2Target() {
     // Calculate motor frequencies
     if (abs(delta0) > abs(delta1)) {
         freq0 = MAX_FREQ;
-        freq1 = MAX_FREQ*(abs(delta1)/abs(delta0));
+        freq1 = MAX_FREQ*((float)abs(delta1)/abs(delta0));
     } else {
         freq1 = MAX_FREQ;
-        freq0 = MAX_FREQ*(abs(delta0)/abs(delta1));
+        freq0 = MAX_FREQ*((float)abs(delta0)/abs(delta1));
     }
+
 
     // Configure Motor0
     if (delta0 > 0) {
@@ -158,6 +157,7 @@ void Robot::setMotors2Target() {
     } else {
         this->motor0->setDirection(CW);
     }
+    this->motor0->setDestPos(destPos0);
     this->motor0->setFrequency(freq0);
 
     // Configure Motor1
@@ -166,6 +166,7 @@ void Robot::setMotors2Target() {
     } else {
         this->motor1->setDirection(CW);
     }
+    this->motor1->setDestPos(destPos1);
     this->motor1->setFrequency(freq1);
 }
 
@@ -177,9 +178,13 @@ void Robot::updatePos() {
     this->yPos = LINK0*sin(theta0) + LINK1*sin(theta0+theta1);
 }
 
-void Robot::moveMotors() {
-    this->motor0->move2Dest();
-    this->motor1->move2Dest();
+bool Robot::move2Dest() {
+    const bool motor0Finished = this->motor0->move2Dest();
+    const bool motor1Finished = this->motor1->move2Dest();
+    if (motor0Finished && motor1Finished) {
+        return true;
+    }
+    return false;
 }
 
 float Robot::getXTarget() {

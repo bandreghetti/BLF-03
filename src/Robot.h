@@ -5,7 +5,7 @@
 #define LINK0 80
 #define LINK1 80
 
-#define MINPOSRADIUS 5
+#define MINPOSRADIUS 50
 
 class Robot {
     private:

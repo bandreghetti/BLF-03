@@ -4,7 +4,7 @@
 #include "src/Robot.h"
 #include "config.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 Robot *robot;
 
@@ -61,7 +61,7 @@ void setup() {
   xTaskCreate(
     TaskMoveMotors
     ,  (const portCHAR *)"MoveMotors"   // A name just for humans
-    ,  256  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
     ,  NULL
     ,  0  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
     ,  NULL
@@ -73,7 +73,7 @@ void setup() {
     xTaskCreate(
       TaskDebug
       ,  (const portCHAR *)"Debug"   // A name just for humans
-      ,  512  // This stack size can be checked & adjusted by reading the Stack Highwater
+      ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
       ,  NULL
       ,  3  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
       ,  NULL );
@@ -118,20 +118,30 @@ void TaskDebug(void *pvParametes) {
   while(true) {
     digitalWrite(LED_BUILTIN, HIGH);
 
+    robot->updatePos();
+
     Serial.print("T:");
-    Serial.print(millis());
+    Serial.println(millis());
 
-    Serial.print(" X:");
+    Serial.print("A0:");
+    Serial.print(robot->motor0->getDegPos());
+    Serial.print(" T0:");
+    Serial.println(robot->motor0->getDegDestPos());
+
+    Serial.print("A1:");
+    Serial.print(robot->motor1->getDegPos());
+    Serial.print(" T1:");
+    Serial.println(robot->motor1->getDegDestPos());
+
+    Serial.print("X:");
     Serial.print(robot->getXPos());
-
-    Serial.print(" Y:");
-    Serial.print(robot->getYPos());
-
     Serial.print(" XT:");
-    Serial.print(robot->getXTarget());
+    Serial.println(robot->getXTarget());
 
+    Serial.print("Y:");
+    Serial.print(robot->getYPos());
     Serial.print(" YT:");
-    Serial.print(robot->getYTarget());
+    Serial.println(robot->getYTarget());
 
     Serial.println();
 

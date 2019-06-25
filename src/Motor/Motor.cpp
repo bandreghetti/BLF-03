@@ -218,3 +218,15 @@ void Motor::setDestPos(short destPos) {
 short Motor::getDestPos() {
     return this->destPos;
 }
+
+float Motor::getRadPos() {
+    return (float)this->pos * ((2*PI) / STEPS_PER_REV);
+}
+
+float Motor::getDegPos() {
+    return (float)this->pos * (360.0 / STEPS_PER_REV);
+}
+
+float Motor::getDegDestPos() {
+    return (float)this->destPos * (360.0 / STEPS_PER_REV);
+}

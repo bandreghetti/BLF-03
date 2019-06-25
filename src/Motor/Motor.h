@@ -44,8 +44,12 @@ class Motor {
         void setPos(short);
         short getPos();
 
+        float getRadPos();
+        float getDegPos();
+
         void setDestPos(short);
         short getDestPos();
+        float getDegDestPos();
 
         bool endstopHit();
 };

@@ -19,7 +19,7 @@ void Robot::home() {
             digitalWrite(LED_BUILTIN, HIGH);
             delay(100);
             digitalWrite(LED_BUILTIN, LOW);
-            delay(100);
+            delay(1000);
         }
     }
     this->motor0->setPos(STEPS_PER_REV/2);
@@ -30,7 +30,7 @@ void Robot::home() {
             digitalWrite(LED_BUILTIN, HIGH);
             delay(100);
             digitalWrite(LED_BUILTIN, LOW);
-            delay(100);
+            delay(1000);
         }
     }
     this->motor1->setPos(0);
@@ -170,11 +170,8 @@ void Robot::setMotors2Target() {
 }
 
 void Robot::updatePos() {
-    const short pos0 = this->motor0->getPos();
-    const short pos1 = this->motor1->getPos();
-
-    const float theta0 = (float)pos0 * ((2*PI) / STEPS_PER_REV);
-    const float theta1 = (float)pos1 * ((2*PI) / STEPS_PER_REV);
+    const float theta0 = this->motor0->getRadPos();
+    const float theta1 = this->motor1->getRadPos();
 
     this->xPos = LINK0*cos(theta0) + LINK1*cos(theta0+theta1);
     this->yPos = LINK0*sin(theta0) + LINK1*sin(theta0+theta1);

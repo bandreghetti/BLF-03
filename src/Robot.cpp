@@ -72,7 +72,7 @@ void Robot::joy2Target() {
 
     const float armLen = (float)(LINK0+LINK1);
     float xTarget = joyX * (2*armLen / 1023.0) - armLen;
-    float yTarget = joyY * armLen / 1023;
+    float yTarget = joyY * armLen / 1023.0;
 
     const float posRad = sqrt(pow(xTarget, 2) + pow(yTarget, 2));
     const bool exceedsArmLength = posRad > armLen;
@@ -107,7 +107,7 @@ void Robot::joy2Target() {
             yTarget = MINPOSRADIUS*sin(angleZero2Target);
         // If point is inside non-bending elbow limitation semicircle
         } else if (invalidElbow) {
-            xTarget = LINK1*cos(angleLeft2Target);
+            xTarget = LINK1*cos(angleLeft2Target)-LINK0;
             yTarget = LINK1*sin(angleLeft2Target);
         }
     }
@@ -129,8 +129,8 @@ void Robot::setMotors2Target() {
     const float sinTheta1 = sin(theta1);
     const float cosTheta1 = cos(theta1);
     const float n = this->yTarget*(LINK0+LINK1*cosTheta1) - this->xTarget*LINK1*sinTheta1;
-    const float d = this->xTarget*(LINK0+LINK1*cosTheta1) - this->yTarget*LINK1*sinTheta1;
-    const float theta0 = atan2(d, n);
+    const float d = this->xTarget*(LINK0+LINK1*cosTheta1) + this->yTarget*LINK1*sinTheta1;
+    const float theta0 = atan2(n, d);
     const short destPos0 = (short)(theta0 * STEPS_PER_REV / (2*PI));;
     this->motor0->setDestPos(destPos0);
 

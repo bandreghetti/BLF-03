@@ -4,7 +4,7 @@
 #define CW 1
 
 #define STEPS_PER_REV 2048
-#define MAX_FREQ 100
+#define MAX_FREQ 128
 
 class Motor {
     private:
@@ -22,13 +22,14 @@ class Motor {
         unsigned short frequency;
         bool dir;
         bool stopped;
+        void step(bool);
     public:
         Motor(char[], char);
 
         bool zero();
 
-        void step(bool);
         void goTo(short, unsigned short);
+
         bool checkAndStep();
         void blockingStep();
 

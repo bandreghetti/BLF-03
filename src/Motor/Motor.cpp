@@ -132,7 +132,6 @@ void Motor::goTo(short newPos, unsigned short freq) {
     }
 
     short stepsToTake = abs(newPos - this->pos);
-    Serial.println(stepsToTake);
     for(int i = 0; i < stepsToTake; ++i){
         this->blockingStep();
     }
@@ -142,6 +141,10 @@ bool Motor::checkAndStep() {
     // If motor is stopped, just return false and don't step
     if (this->stopped) {
         return false;
+    }
+
+    if (this->endstopHit() && this->dir == CCW) {
+        return true;
     }
 
     // Check if period has passed

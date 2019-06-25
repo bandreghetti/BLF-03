@@ -7,3 +7,5 @@
 #define JOYY A5
 
 #define ENABLEPORT 2
+
+#define JOYSTICK_PERIOD 60

@@ -1,12 +1,10 @@
 #include "Joystick.h"
 
-Joystick::Joystick(char xPort, char yPort, char ePort) {
+Joystick::Joystick(char xPort, char yPort) {
     this->xPort = xPort;
     this->yPort = yPort;
-    this->ePort = ePort;
     pinMode(xPort, INPUT);
     pinMode(yPort, INPUT);
-    pinMode(ePort, INPUT);
     this->centerX = analogRead(xPort);
     this->centerY = analogRead(yPort);
 }
@@ -29,21 +27,18 @@ void Joystick::update() {
     this->rawX = newX;
 
     // Update Y reading
-    newY = analogRead(this->yPort);
+    newY = 1023-analogRead(this->yPort);
     if(newY < this->centerY + DEADZONE
     && newY > this->centerY - DEADZONE) {
         this->y = 0;
     } else {
         if(newY > this->centerY) {
-            this->y = map(newY, this->centerY+DEADZONE, 1023, 0, -512);
+            this->y = map(newY, this->centerY+DEADZONE, 1023, 0, 512);
         } else {
-            this->y = map(newY, this->centerY-DEADZONE, 0, 0, 512);
+            this->y = map(newY, this->centerY-DEADZONE, 0, 0, -512);
         }
     }
     this->rawY = newY;
-
-    // Update enable port
-    this->e = digitalRead(this->ePort);
 }
 
 short Joystick::getRawX() {
@@ -60,8 +55,4 @@ short Joystick::getX() {
 
 short Joystick::getY() {
     return this->y;
-}
-
-bool Joystick::enabled() {
-    return this->e;
 }

@@ -15,6 +15,7 @@ class Motor {
         // State variables
         char state;
         short pos;
+        short destPos;
         unsigned long lastStepTime;
 
         // Dynamically configurable variables
@@ -31,6 +32,7 @@ class Motor {
         void goTo(short, unsigned short);
 
         bool checkAndStep();
+        void move2Dest();
         void blockingStep();
 
         void setFrequency(unsigned short);
@@ -41,6 +43,9 @@ class Motor {
 
         void setPos(short);
         short getPos();
+
+        void setDestPos(short);
+        short getDestPos();
 
         bool endstopHit();
 };

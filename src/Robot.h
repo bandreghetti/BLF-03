@@ -10,6 +10,8 @@
 class Robot {
     private:
         bool enabled;
+        float xPos;
+        float yPos;
         float xTarget;
         float yTarget;
     public:
@@ -22,8 +24,13 @@ class Robot {
         void behavior0();
 
         void joy2Target();
-        void move2Target();
+        void setMotors2Target();
+        void moveMotors();
 
         float getXTarget();
         float getYTarget();
+
+        void updatePos();
+        float getXPos();
+        float getYPos();
 };

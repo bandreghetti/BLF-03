@@ -117,12 +117,13 @@ void Robot::joy2Target() {
     return;
 }
 
-void Robot::move2Target() {
+void Robot::setMotors2Target() {
     // Calculate Theta1
     const float theta1 = -acos((pow(this->xTarget, 2) + pow(this->yTarget, 2) - LINK0*LINK0 - LINK1*LINK1)
                            /(float)(2*LINK0*LINK1)
                            );
     const short destPos1 = (short)(theta1 * STEPS_PER_REV / (2*PI));
+    this->motor1->setDestPos(destPos1);
 
     // Calculate Theta0
     const float sinTheta1 = sin(theta1);
@@ -131,6 +132,7 @@ void Robot::move2Target() {
     const float d = this->xTarget*(LINK0+LINK1*cosTheta1) - this->yTarget*LINK1*sinTheta1;
     const float theta0 = atan2(d, n);
     const short destPos0 = (short)(theta0 * STEPS_PER_REV / (2*PI));;
+    this->motor0->setDestPos(destPos0);
 
     // Calculate how many steps each motor needs to turn
     const short delta0 = destPos0 - this->motor0->getPos();
@@ -165,21 +167,22 @@ void Robot::move2Target() {
         this->motor1->setDirection(CW);
     }
     this->motor1->setFrequency(freq1);
+}
 
-    unsigned short motor0StepsLeft = abs(delta0);
-    unsigned short motor1StepsLeft = abs(delta1);
-    while(motor0StepsLeft || motor1StepsLeft) {
-        if(motor0StepsLeft) {
-            if(this->motor0->checkAndStep()) {
-                --motor0StepsLeft;
-            }
-        }
-        if(motor1StepsLeft) {
-            if(this->motor1->checkAndStep()) {
-                --motor1StepsLeft;
-            }
-        }
-    }
+void Robot::updatePos() {
+    const short pos0 = this->motor0->getPos();
+    const short pos1 = this->motor1->getPos();
+
+    const float theta0 = (float)pos0 * ((2*PI) / STEPS_PER_REV);
+    const float theta1 = (float)pos1 * ((2*PI) / STEPS_PER_REV);
+
+    this->xPos = LINK0*cos(theta0) + LINK1*cos(theta0+theta1);
+    this->yPos = LINK0*sin(theta0) + LINK1*sin(theta0+theta1);
+}
+
+void Robot::moveMotors() {
+    this->motor0->move2Dest();
+    this->motor1->move2Dest();
 }
 
 float Robot::getXTarget() {
@@ -188,4 +191,12 @@ float Robot::getXTarget() {
 
 float Robot::getYTarget() {
     return this->yTarget;
+}
+
+float Robot::getXPos() {
+    return this->xPos;
+}
+
+float Robot::getYPos() {
+    return this->yPos;
 }

@@ -143,6 +143,7 @@ bool Motor::checkAndStep() {
         return false;
     }
 
+    // If endstop is being pressed, ignore steps sent towards it
     if (this->endstopHit() && this->dir == CCW) {
         return true;
     }
@@ -155,6 +156,13 @@ bool Motor::checkAndStep() {
 
     // If period has not passed, return false
     return false;
+}
+
+void Motor::move2Dest() {
+    if (this->pos != this->destPos) {
+        this->checkAndStep();
+    }
+    return;
 }
 
 void Motor::setFrequency(unsigned short frequency) {
@@ -200,4 +208,13 @@ void Motor::setPos(short pos) {
 
 short Motor::getPos() {
     return this->pos;
+}
+
+void Motor::setDestPos(short destPos) {
+    this->destPos = destPos;
+    return;
+}
+
+short Motor::getDestPos() {
+    return this->destPos;
 }

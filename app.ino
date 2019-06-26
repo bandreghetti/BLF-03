@@ -39,6 +39,8 @@ void setup() {
     jsPorts
   );
 
+  pinMode(ENABLEPORT, INPUT);
+  while(!digitalRead(ENABLEPORT));
   robot->home();
 
   // Create Joystick task
@@ -74,7 +76,7 @@ void setup() {
   vTaskSuspend(moveMotorsHandle);
 
   // Enable safety button
-  pinMode(ENABLEPORT, INPUT_PULLUP);
+  pinMode(ENABLEPORT, INPUT);
   attachInterrupt(digitalPinToInterrupt(ENABLEPORT), SafetyISR, CHANGE);
 
   if (DEBUG) {

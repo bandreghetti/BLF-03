@@ -4,7 +4,7 @@
 #define CW 1
 
 #define STEPS_PER_REV 2048
-#define MAX_FREQ 128
+#define MAX_FREQ 192
 
 class Motor {
     private:

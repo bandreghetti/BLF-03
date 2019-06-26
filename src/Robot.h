@@ -23,6 +23,9 @@ class Robot {
         void home();
         void behavior0();
 
+        void disable();
+        void enable();
+
         void joy2Target();
         void setMotors2Target();
         bool move2Dest();

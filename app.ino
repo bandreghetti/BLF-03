@@ -4,15 +4,19 @@
 #include "src/Robot.h"
 #include "config.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 Robot *robot;
 
 SemaphoreHandle_t jsMutex;
 
 void TaskJoystick(void *pvParameters);
+
 void TaskSetMotors(void *pvParameters);
+
+TaskHandle_t moveMotorsHandle;
 void TaskMoveMotors(void *pvParameters);
+
 void TaskDebug(void *pvParameters);
 
 void setup() {
@@ -64,8 +68,14 @@ void setup() {
     ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
     ,  NULL
     ,  0  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL
+    ,  &moveMotorsHandle
   );
+  // Suspend motors until safety button is pressed
+  vTaskSuspend(moveMotorsHandle);
+
+  // Enable safety button
+  pinMode(ENABLEPORT, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(ENABLEPORT), SafetyISR, CHANGE);
 
   if (DEBUG) {
     Serial.begin(115200);
@@ -105,7 +115,6 @@ void TaskSetMotors(void *pvParameters) {
   while(true) {
     xSemaphoreTake(jsMutex, portMAX_DELAY);
     robot->setMotors2Target();
-    vTaskDelay(100/portTICK_PERIOD_MS);
   }
 }
 
@@ -115,7 +124,16 @@ void TaskJoystick(void *pvParameters) {
   while(true) {
     robot->joy2Target();
     xSemaphoreGive(jsMutex);
-    vTaskDelay((200) / portTICK_PERIOD_MS);
+    vTaskDelay((50) / portTICK_PERIOD_MS);
+  }
+}
+
+static void SafetyISR() {
+  delayMicroseconds(200); // button debounce
+  if (digitalRead(ENABLEPORT)) {
+    vTaskResume(moveMotorsHandle);
+  } else {
+    vTaskSuspend(moveMotorsHandle);
   }
 }
 
